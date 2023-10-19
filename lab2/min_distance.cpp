@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <limits>
+#include <chrono>
 
 struct Point {
     int id;
@@ -96,6 +97,15 @@ int main() {
 
     std::cout << "Closest pair: " << closest.first << " and " << closest.second << std::endl;
     std::cout << "Distance: " << distance(newPoints[closest.first], newPoints[closest.second]) << std::endl;
+
+    // 获取结束时间点
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // 计算执行时间
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    // 输出执行时间（以毫秒为单位）
+    std::cout << "Execution time: " << duration.count() << " milliseconds" << std::endl;
 
     return 0;
 }

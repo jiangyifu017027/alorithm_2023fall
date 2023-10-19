@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <chrono>
 
 struct Point {
     int id;
@@ -18,6 +19,9 @@ double distance(const Point& p1, const Point& p2) {
 }
 
 int main() {
+    // 获取开始时间点
+    auto start = std::chrono::high_resolution_clock::now();
+
     std::ifstream inputFile("data.txt");
     if (!inputFile.is_open()) {
         std::cout << "Failed to open the input file." << std::endl;
@@ -51,6 +55,15 @@ int main() {
 
     std::cout << "Closest pair: " << closestPoint1 << " and " << closestPoint2 << std::endl;
     std::cout << "Distance: " << minDistance << std::endl;
+
+    // 获取结束时间点
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // 计算执行时间
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    // 输出执行时间（以毫秒为单位）
+    std::cout << "Execution time: " << duration.count() << " milliseconds" << std::endl;
 
     return 0;
 }
