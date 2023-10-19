@@ -72,6 +72,9 @@ std::pair<int, int> closestPair(const std::vector<Point>& points, int start, int
 }
 
 int main() {
+    // 获取开始时间点
+    auto start = std::chrono::high_resolution_clock::now();
+    
     std::ifstream inputFile("data.txt");
     if (!inputFile.is_open()) {
         std::cout << "Failed to open the input file." << std::endl;
