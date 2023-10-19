@@ -39,7 +39,7 @@ void quickSort(std::vector<int>& arr, int low, int high, int threshold) {
                 }
             }
 
-            std::swap(arr[low], arr[j]);
+            swap(arr[low], arr[j]);
 
             quickSort(arr, low, j - 1, threshold);
             quickSort(arr, j + 1, high, threshold);
