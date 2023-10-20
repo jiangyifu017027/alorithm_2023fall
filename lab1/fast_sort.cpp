@@ -3,6 +3,7 @@
 #include <vector>
 #include <chrono>
 #include <random>
+#include <algorithm>
 
 using namespace std;
 
@@ -164,8 +165,10 @@ int main() {
     // 以三数取中的方式实现快速排序
     // quickSortMedianOfThree(nums, 0, numCount - 1);
     // 采用插入排序优化后的快速排序
-    int threshold = sqrt(nums.size());
-    quickSort(nums, 0, nums.size() - 1, threshold);
+    // int threshold = sqrt(nums.size());
+    // quickSort(nums, 0, nums.size() - 1, threshold);
+    //标准排序
+    sort(nums.begin(), nums.end());
 
     ofstream outputFile("sorted.txt");
     if (!outputFile) {
