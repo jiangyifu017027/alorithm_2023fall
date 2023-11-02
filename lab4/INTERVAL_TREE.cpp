@@ -2,6 +2,7 @@
 #include <fstream>
 #include <queue>
 #include <climits>
+#include <sstream>
 
 enum Color { RED, BLACK };
 
@@ -23,7 +24,6 @@ class IntervalTree {
 private:
     TNode* root;
 
-    // 辅助函数和成员函数
     // 辅助函数：左旋转
     void LeftRotate(TNode* x) {
         TNode* y = x->right;
@@ -153,7 +153,6 @@ private:
 
 public:
     // 构造函数和成员函数
-    // 构造函数
     IntervalTree() {
         root = nullptr;
     }
@@ -205,17 +204,34 @@ int main() {
     // 从文件中读取插入的区间
     tree.readInsertFromFile("insert.txt");
 
-    // 从控制台读取待查询区间
-    Interval query;
-    std::cout << "Enter query interval (low high): ";
-    std::cin >> query.low >> query.high;
+    bool continueQuery = true;
+    int queryIndex = 1;
 
-    // 查找重叠的区间
-    std::vector<Interval> overlappedIntervals = tree.searchOverlap(query);
+    while (continueQuery) {
+        // 从控制台读取待查询区间
+        Interval query;
+        std::cout << "Enter query interval " << queryIndex << " (low high), or enter 'q' to quit: ";
+        std::string userInput;
+        std::getline(std::cin, userInput);
 
-    std::cout << "Overlapped intervals:" << std::endl;
-    for (const auto& interval : overlappedIntervals) {
-        std::cout << "[" << interval.low << ", " << interval.high << "]" << std::endl;
+        if (userInput == "q" || userInput == "Q") {
+            continueQuery = false;
+        } else {
+            std::istringstream iss(userInput);
+            if (iss >> query.low >> query.high) {
+                // 查找重叠的区间
+                std::vector<Interval> overlappedIntervals = tree.searchOverlap(query);
+
+                std::cout << "Overlapped intervals:" << std::endl;
+                for (const auto& interval : overlappedIntervals) {
+                    std::cout << "[" << interval.low << ", " << interval.high << "]" << std::endl;
+                }
+
+                queryIndex++;
+            } else {
+                std::cout << "Invalid input. Please try again." << std::endl;
+            }
+        }
     }
 
     return 0;
