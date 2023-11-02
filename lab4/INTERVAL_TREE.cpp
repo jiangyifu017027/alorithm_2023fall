@@ -144,10 +144,10 @@ private:
         if (isOverlap(x->interval, interval))
             result.push_back(x->interval);
 
-        if (x->left != nullptr && x->left->max >= interval.low)
+        if (x->left != nullptr)
             searchOverlapHelper(x->left, interval, result);
 
-        if (x->right != nullptr && x->right->interval.low <= interval.high && x->right->max >= interval.low)
+        if (x->right != nullptr)
             searchOverlapHelper(x->right, interval, result);
     }
 
@@ -178,7 +178,7 @@ public:
         return result;
     }
 
-    // 修改的成员函数：从文件中读取插入的区间
+    // 从文件中读取插入的区间
     void readInsertFromFile(const std::string& filename) {
         std::ifstream file(filename);
         if (!file) {
