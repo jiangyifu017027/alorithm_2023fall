@@ -6,11 +6,13 @@
 
 enum Color { RED, BLACK };
 
+// 区间定义
 struct Interval {
     int low;
     int high;
 };
 
+// 节点的定义
 struct TNode {
     Interval interval;
     int max;
@@ -20,6 +22,8 @@ struct TNode {
     TNode* p;
 };
 
+
+// 考虑实现区间树类
 class IntervalTree {
 private:
     TNode* root;
@@ -226,7 +230,6 @@ int main() {
                 for (const auto& interval : overlappedIntervals) {
                     std::cout << "[" << interval.low << ", " << interval.high << "]" << std::endl;
                 }
-
                 queryIndex++;
             } else {
                 std::cout << "Invalid input. Please try again." << std::endl;
