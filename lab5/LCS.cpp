@@ -90,5 +90,25 @@ int main() {
     int length3 = lcs3(text1, text2);
     cout << "LCS length (O(mn), O(min(m,n))): " << length3 << endl;
 
+    // 输出最长公共子序列
+    vector<char> lcs;
+    int i = text1.length(), j = text2.length();
+    while (i > 0 && j > 0) {
+        if (text1[i - 1] == text2[j - 1]) {
+            lcs.push_back(text1[i - 1]);
+            i--;
+            j--;
+        } else if (lcs1(text1.substr(0, i), text2.substr(0, j)) == lcs1(text1.substr(0, i - 1), text2.substr(0, j))) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+    reverse(lcs.begin(), lcs.end());
+
+    for (auto c : lcs) {
+        cout << c;
+    }
+
     return 0;
 }
