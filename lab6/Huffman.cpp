@@ -9,6 +9,7 @@
 using namespace std;
 
 // Huffman树的节点
+// 定义了Node结构体，表示Huffman树的节点，包含字符数据、频率以及左右子节点的指针
 struct Node {
     char data;  // 字符
     int freq;   // 频率
@@ -19,6 +20,7 @@ struct Node {
 };
 
 // 用于比较节点的频率
+// 定义了Compare结构体，用于比较节点的频率，作为优先队列的比较函数
 struct Compare {
     bool operator()(Node* a, Node* b) {
         return a->freq > b->freq;
@@ -26,6 +28,8 @@ struct Compare {
 };
 
 // 生成Huffman树
+// 实现了buildHuffmanTree函数，根据字符频率构建Huffman树。
+// 该函数使用优先队列（最小堆）来存储节点，并不断合并频率最低的两个节点，直到只剩下一个根节点
 Node* buildHuffmanTree(const unordered_map<char, int>& freqMap) {
     priority_queue<Node*, vector<Node*>, Compare> pq;
 
@@ -53,6 +57,8 @@ Node* buildHuffmanTree(const unordered_map<char, int>& freqMap) {
 }
 
 // 生成Huffman编码表
+// 实现了generateHuffmanCodes函数，根据Huffman树生成字符的Huffman编码。
+// 该函数使用递归方法遍历Huffman树，将叶子节点的编码存储在codes映射中。
 void generateHuffmanCodes(Node* root, string code, unordered_map<char, string>& codes) {
     if (root == nullptr) {
         return;
@@ -67,6 +73,7 @@ void generateHuffmanCodes(Node* root, string code, unordered_map<char, string>& 
 }
 
 // 将字符串编码为01序列
+// 实现了encodeString函数，将给定的字符串根据Huffman编码转换为01序列
 string encodeString(const string& str, const unordered_map<char, string>& codes) {
     string encodedStr;
     for (char c : str) {
@@ -78,13 +85,15 @@ string encodeString(const string& str, const unordered_map<char, string>& codes)
 }
 
 // 计算压缩率
+// 实现了calculateCompressionRatio函数，计算压缩率。
+// 该函数根据原始字符串的长度和编码后的字符串的长度，以及字符集的长度，计算出压缩率
 double calculateCompressionRatio(const string& orignalStr, const string& encodedStr, const int& ch_length) {
     int orignalBits = orignalStr.length() * ceil(log(ch_length) / log(2));
     int encodedBits = encodedStr.length();
     return static_cast<double>(encodedBits) / orignalBits;
 }
 
-// 打印Huffman编码表到文件
+// 实现了printHuffmanCodesToFile函数，将Huffman编码表打印到文件中
 void printHuffmanCodesToFile(const unordered_map<char, string>& codes, const string& filename, const unordered_map<char, int>& freqMap) {
     ofstream file(filename);
     if (file.is_open()) {
@@ -146,7 +155,7 @@ int main() {
     double compressionRatio = calculateCompressionRatio(orignalStr, encodedStr, ch_length);
 
     // 打印压缩率
-    cout << "Compression Ratio: " << compressionRatio << endl;
+    cout << "Compression Ratio: " << compressionRatio * 100 << "%" << endl;
 
     return 0;
 }
