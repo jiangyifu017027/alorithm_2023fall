@@ -3,6 +3,8 @@
 #include <queue>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
+#include <cctype>
 
 using namespace std;
 
@@ -40,7 +42,7 @@ Node* buildHuffmanTree(const unordered_map<char, int>& freqMap) {
         Node* right = pq.top();
         pq.pop();
 
-        Node* parent = new Node('$', left->freq + right->freq);
+        Node* parent = new Node(',', left->freq + right->freq);
         parent->left = left;
         parent->right = right;
 
@@ -68,24 +70,26 @@ void generateHuffmanCodes(Node* root, string code, unordered_map<char, string>& 
 string encodeString(const string& str, const unordered_map<char, string>& codes) {
     string encodedStr;
     for (char c : str) {
-        encodedStr += codes.at(c);
+        if (codes.find(c) != codes.end()) {
+            encodedStr += codes.at(c);
+        }
     }
     return encodedStr;
 }
 
 // 计算压缩率
-double calculateCompressionRatio(const string& originalStr, const string& encodedStr) {
-    int originalBits = originalStr.length() * 8;
+double calculateCompressionRatio(const string& orignalStr, const string& encodedStr, const int& ch_length) {
+    int orignalBits = orignalStr.length() * ceil(log(ch_length) / log(2));
     int encodedBits = encodedStr.length();
-    return static_cast<double>(encodedBits) / originalBits;
+    return static_cast<double>(encodedBits) / orignalBits;
 }
 
 // 打印Huffman编码表到文件
-void printHuffmanCodesToFile(const unordered_map<char, string>& codes, const string& filename) {
+void printHuffmanCodesToFile(const unordered_map<char, string>& codes, const string& filename, const unordered_map<char, int>& freqMap) {
     ofstream file(filename);
     if (file.is_open()) {
         for (const auto& pair : codes) {
-            file << pair.first << ": " << pair.second << endl;
+            file << pair.first << "  " << freqMap.at(pair.first) << "  " << pair.second << endl;
         }
         file.close();
     } else {
@@ -94,24 +98,36 @@ void printHuffmanCodesToFile(const unordered_map<char, string>& codes, const str
 }
 
 int main() {
-    string originalFilename = "orignal.txt";
+    string orignalFilename = "orignal.txt";
     string tableFilename = "table.txt";
 
     // 读取原始字符串
-    ifstream originalFile(originalFilename);
-    if (!originalFile.is_open()) {
-        cout << "Unable to open the file: " << originalFilename << endl;
+    ifstream orignalFile(orignalFilename);
+    if (!orignalFile.is_open()) {
+        cout << "Unable to open the file: " << orignalFilename << endl;
         return 1;
     }
 
-    string originalStr((istreambuf_iterator<char>(originalFile)), istreambuf_iterator<char>());
-    originalFile.close();
+    char c;
+    string orignalStr;
+    while (orignalFile.get(c)) {
+        if (!std::isspace(c)) {
+            // 在这里可以处理非空格和非换行符的字符
+            orignalStr.push_back(c);
+        }
+    }
+    orignalFile.close();
 
     // 统计字符频率
     unordered_map<char, int> freqMap;
-    for (char c : originalStr) {
-        freqMap[c]++;
+    for (char c : orignalStr) {
+        if (freqMap.find(c) != freqMap.end()) {
+            freqMap[c]++;
+        } else {
+            freqMap[c] = 1;
+        }
     }
+    int ch_length = freqMap.size();
 
     // 构建Huffman树
     Node* root = buildHuffmanTree(freqMap);
@@ -121,13 +137,13 @@ int main() {
     generateHuffmanCodes(root, "", codes);
 
     // 将原始字符串编码为01序列
-    string encodedStr = encodeString(originalStr, codes);
+    string encodedStr = encodeString(orignalStr, codes);
 
     // 打印Huffman编码表到文件
-    printHuffmanCodesToFile(codes, tableFilename);
+    printHuffmanCodesToFile(codes, tableFilename, freqMap);
 
     // 计算压缩率
-    double compressionRatio = calculateCompressionRatio(originalStr, encodedStr);
+    double compressionRatio = calculateCompressionRatio(orignalStr, encodedStr, ch_length);
 
     // 打印压缩率
     cout << "Compression Ratio: " << compressionRatio << endl;
