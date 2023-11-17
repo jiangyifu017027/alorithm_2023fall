@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/alorithm/lab5",
-      "program": "c:/alorithm/lab5/build/Debug/outDebug",
+      "cwd": "c:/alorithm/lab6",
+      "program": "c:/alorithm/lab6/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
