@@ -1,52 +1,48 @@
 #include <iostream>
+#include <vector>
+#include <climits>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <vector>
-#include <algorithm>
 
-struct Machine {
-    int id;
-    int time;
-    std::vector<int> tasks;
-};
+using namespace std;
 
-bool compareMachine(const Machine& m1, const Machine& m2) {
-    return m1.time < m2.time;
+// 回溯法求解最佳调度
+void backtrack(const vector<int>& tasks, int n, int k, vector<int>& assignment, vector<int>& bestAssignment, vector<int>& machineTime, int& bestTime) {
+    if (n == tasks.size()) {
+        // 所有任务都已分配完毕，更新最佳调度时间
+        int maxTime = *max_element(machineTime.begin(), machineTime.end());
+        if (maxTime < bestTime) {
+            bestTime = maxTime;
+            bestAssignment = assignment;
+        }
+        return;
+    }
+
+    for (int i = 0; i < k; i++) {
+        // 尝试将任务n分配给第i台机器
+        machineTime[i] += tasks[n];
+        assignment[n] = i;
+
+        // 继续分配下一个任务
+        backtrack(tasks, n + 1, k, assignment, bestAssignment, machineTime, bestTime);
+
+        // 回溯，撤销任务n的分配
+        machineTime[i] -= tasks[n];
+        assignment[n] = -1;
+    }
 }
 
-void scheduleTasks(const std::vector<int>& tasks, int k) {
+// 求解最佳调度
+vector<int> findBestSchedule(const vector<int>& tasks, int k, int& bestTime) {
     int n = tasks.size();
-    std::vector<Machine> machines(k);
+    vector<int> assignment(n, -1);  // 记录任务分配情况
+    vector<int> bestAssignment(n, -1);  // 记录最佳调度情况
+    vector<int> machineTime(k, 0);  // 记录每台机器的完成时间
 
-    // 初始化机器
-    for (int i = 0; i < k; ++i) {
-        machines[i].id = i + 1;
-        machines[i].time = 0;
-    }
+    backtrack(tasks, 0, k, assignment, bestAssignment, machineTime, bestTime);
 
-    // 调度任务
-    for (int i = 0; i < n; ++i) {
-        // 找到完成时间最早的机器
-        auto minMachine = std::min_element(machines.begin(), machines.end(), compareMachine);
-
-        // 将任务分配给该机器
-        minMachine->tasks.push_back(i + 1);
-        minMachine->time += tasks[i];
-    }
-
-    // 输出调度方案和总时间
-    int totalTime = 0;
-    for (const auto& machine : machines) {
-        std::cout << "Machine " << machine.id << " (";
-        for (int task : machine.tasks) {
-            std::cout << "Task " << task << ",";
-        }
-        std::cout << ") ";
-        totalTime = std::max(totalTime, machine.time);
-    }
-
-    std::cout << std::endl;
-    std::cout << "Total time: " << totalTime << std::endl;
+    return bestAssignment;
 }
 
 int main() {
@@ -84,11 +80,24 @@ int main() {
             continue;
         }
 
-        inputFile.close();
+        sort(tasks.begin(), tasks.end());
 
-        std::cout << "Processing file: " << filename << std::endl;
-        scheduleTasks(tasks, k);
-        std::cout << std::endl;
+        int bestTime = INT_MAX;  // 记录最佳调度的完成时间
+        vector<int> bestSchedule = findBestSchedule(tasks, k, bestTime);
+
+        int totalTime = *max_element(bestSchedule.begin(), bestSchedule.end());
+
+        cout << "TotalTime: " << bestTime << endl;
+        cout << "Schedule: " << endl;
+        for (int i = 0; i < k; i++) {
+            cout << "Machine" << i + 1 << ": ";
+            for (int j = 0; j < n; j++) {
+                if (bestSchedule[j] == i) {
+                    cout << "Task" << j + 1 << " ";
+                }
+            }
+            cout << endl;
+            }
     }
 
     return 0;
