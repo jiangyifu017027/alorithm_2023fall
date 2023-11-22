@@ -4,11 +4,27 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <queue>
 
 using namespace std;
 
+// 贪心算法生成初始解
+vector<int> generateInitialSolution(const vector<int>& tasks, int k, vector<int>& machineTime) {
+    int n = tasks.size();
+    vector<int> assignment(n, -1);  // 记录任务分配情况
+
+    for (int i = 0; i < n; i++) {
+        int minTime = *min_element(machineTime.begin(), machineTime.end());
+        int minMachine = distance(machineTime.begin(), min_element(machineTime.begin(), machineTime.end()));
+        assignment[i] = minMachine;
+        machineTime[minMachine] += tasks[i];
+    }
+
+    return assignment;
+}
+
 // 回溯法求解最佳调度
-void backtrack(const vector<int>& tasks, int n, int k, vector<int>& assignment, vector<int>& bestAssignment, vector<int>& machineTime, int& bestTime) {
+void backtrack(const vector<int>& tasks, int n, int k, vector<int>& assignment, vector<int>& bestAssignment, vector<int>& machineTime, int& bestTime, priority_queue<pair<int, vector<int>>>& pq) {
     if (n == tasks.size()) {
         // 所有任务都已分配完毕，更新最佳调度时间
         int maxTime = *max_element(machineTime.begin(), machineTime.end());
@@ -24,8 +40,15 @@ void backtrack(const vector<int>& tasks, int n, int k, vector<int>& assignment, 
         machineTime[i] += tasks[n];
         assignment[n] = i;
 
-        // 继续分配下一个任务
-        backtrack(tasks, n + 1, k, assignment, bestAssignment, machineTime, bestTime);
+        // 剪枝策略1：检查当前机器的完成时间是否已经超过了当前最佳完成时间
+        if (machineTime[i] < bestTime) {
+            // 剪枝策略2：检查当前机器的完成时间与其他机器的完成时间之差
+            int diff = machineTime[i] - *min_element(machineTime.begin(), machineTime.end());
+            if (diff <= bestTime) {
+                // 继续分配下一个任务
+                backtrack(tasks, n + 1, k, assignment, bestAssignment, machineTime, bestTime, pq);
+            }
+        }
 
         // 回溯，撤销任务n的分配
         machineTime[i] -= tasks[n];
@@ -34,13 +57,16 @@ void backtrack(const vector<int>& tasks, int n, int k, vector<int>& assignment, 
 }
 
 // 求解最佳调度
-vector<int> findBestSchedule(const vector<int>& tasks, int k, int& bestTime) {
+vector<int> findBestSchedule(const vector<int>& tasks, int k, int& bestTime, const vector<int>& initialSolution) {
     int n = tasks.size();
-    vector<int> assignment(n, -1);  // 记录任务分配情况
+    vector<int> assignment = initialSolution;  // 记录任务分配情况
     vector<int> bestAssignment(n, -1);  // 记录最佳调度情况
     vector<int> machineTime(k, 0);  // 记录每台机器的完成时间
 
-    backtrack(tasks, 0, k, assignment, bestAssignment, machineTime, bestTime);
+    // 使用优先队列存储当前最佳完成时间及其对应的任务分配情况
+    priority_queue<pair<int, vector<int>>> pq;
+
+    backtrack(tasks, 0, k, assignment, bestAssignment, machineTime, bestTime, pq);
 
     return bestAssignment;
 }
@@ -80,10 +106,13 @@ int main() {
             continue;
         }
 
-        sort(tasks.begin(), tasks.end());
+        sort(tasks.begin(), tasks.end(), greater<int>());  // 非递增排序
 
         int bestTime = INT_MAX;  // 记录最佳调度的完成时间
-        vector<int> bestSchedule = findBestSchedule(tasks, k, bestTime);
+        vector<int> machineTime(k, 0);  // 记录每台机器的完成时间
+        vector<int> initialSolution = generateInitialSolution(tasks, k, machineTime);  // 使用贪心算法生成初始解
+        bestTime = *max_element(machineTime.begin(), machineTime.end());
+        vector<int> bestSchedule = findBestSchedule(tasks, k, bestTime, initialSolution);
 
         int totalTime = *max_element(bestSchedule.begin(), bestSchedule.end());
 
@@ -97,7 +126,7 @@ int main() {
                 }
             }
             cout << endl;
-            }
+        }
     }
 
     return 0;
