@@ -1,6 +1,6 @@
 # alorithm
 
-## USTC 算法基础实验
+## USTC 算法基础实验 徐云班
 
 使用cpp语言实现
 
